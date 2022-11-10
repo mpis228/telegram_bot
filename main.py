@@ -1,39 +1,76 @@
 import telebot
 from telebot import types
-from string import Template
-import time
-from SQL_load import load_to_bd
+
+from tools import MustangMenu
 
 # не забыть токет в общий кофиг закинуть потом
 bot = telebot.TeleBot('5441324806:AAFX2bdVqwbpV6307GLOGNjib3p5S7gdgMk')
+Mustang = MustangMenu()
+
+"""так как это чисты говнокод как по мне и я обычно работаю без коментариев по возможноти буду писать коменты
+тут есть кнопки которые без БД не как не работают не забывай"""
+
+answer_id = 0  # создал пременую для того что бы хранить айди ответа и потом удалить
 
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    Mustang.menu(message)
 
-    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=3)
-    com_recall = types.KeyboardButton("about")
-    com_questions = types.KeyboardButton("questions")
-    com_auhtor = types.KeyboardButton("auhtor")
-    com_statistic = types.KeyboardButton("statistic")
-    com_earn = types.KeyboardButton("earn")
-    markup.add(com_recall, com_questions, com_auhtor, com_statistic, com_earn)
-    bot.send_message(message.chat.id, "Вас приветсвует мустангру бот ", reply_markup=markup)
 
 @bot.message_handler()
-def questions(message):
-    markup = types.InlineKeyboardMarkup()
-    question_who = types.InlineKeyboardButton(f"первый вопрос", callback_data='1')
-    markup.add(question_who)
-    bot.send_message(message.chat.id, 'never', reply_markup=markup)
+def all_murk(message):
+    # answer_id = 0  # создал пременую для того что бы хранить айди ответа и потом удалить
+
+    if message.text == 'Меню':
+        Mustang.menu(message)
+    elif message.text == 'Вопросы':
+        Mustang.question(message)
+    elif message.text == 'Автор':
+        Mustang.auhtor(message)
+    elif message.text == 'Отзывы':
+        Mustang.reviews(message)
+    elif message.text == 'Статистика':
+        Mustang.statistic(message)
+    elif message.text == 'заработать':
+        markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
+        menu = types.KeyboardButton("Меню")
+        markup_line.add(menu)
+        bot.send_message(message.chat.id, '📌Вы в одном шаге заработку', reply_markup=markup_line)
+
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        inst_com = types.InlineKeyboardButton(f"Instagram",
+                                              'https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
+        markup.add(inst_com)
+        bot.send_message(message.chat.id, "посмотрите его видео", reply_markup=markup)
+    elif message.text == "Назад к вопросам":
+        Mustang.back_to_question(message)
 
 
-@bot.callback_query_handler(func = lambda c: True)
+@bot.message_handler()
+def start_work(message):
+    if message.text == 'заработать':
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        inst_com = types.InlineKeyboardButton(f"Instagram",
+                                              'https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
+        markup.add(inst_com)
+        bot.send_message(message.chat.id, "посмотрите его видео", reply_markup=markup)
+
+
+@bot.callback_query_handler(func=lambda c: True)
+def main(call):
+    if call.data in '0123':
+        print("работает")
+        question(call)
+
+
 def question(call):
+    Mustang.call_quest(call)
+
+
+def work(call):
     if call.message:
-        if call.data == '1':
-            info = load_to_bd()['answer']
-            bot.send_message(call.message.chat.id, info)
+        pass
 
 
 bot.polling(none_stop=True)
