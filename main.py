@@ -29,22 +29,16 @@ def all_murk(message):
     elif message.text == 'Автор':
         Mustang.auhtor(message)
     elif message.text == 'Отзывы':
-        Mustang.reviews(message)
+        Mustang.feedback(message)
     elif message.text == 'Статистика':
         Mustang.statistic(message)
-    elif message.text == 'заработать':
-        markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
-        menu = types.KeyboardButton("Меню")
-        markup_line.add(menu)
-        bot.send_message(message.chat.id, '📌Вы в одном шаге заработку', reply_markup=markup_line)
-
-        markup = types.InlineKeyboardMarkup(row_width=1)
-        inst_com = types.InlineKeyboardButton(f"Instagram",
-                                              'https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
-        markup.add(inst_com)
-        bot.send_message(message.chat.id, "посмотрите его видео", reply_markup=markup)
+    elif message.text == 'Заработать':
+        Mustang.start_play(message)
     elif message.text == "Назад к вопросам":
         Mustang.back_to_question(message)
+    elif message.text == 'More':
+        Mustang.feedback(message)
+
 
 
 @bot.message_handler()
