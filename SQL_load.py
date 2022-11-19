@@ -98,9 +98,7 @@ class LoadMySQL():
             try:
                 # select table
                 with connection.cursor() as cursor:
-                    create_table = f"insert price_user(user_id, price) VALUES({user}, 0);"
-                    cursor.execute(create_table)
-                    create_table = f"insert users(user, earned, completed_quests) VALUES({user}, 0, 0);"
+                    create_table = f"insert users(user_id, earned, completed_quests) VALUES({user}, 0, 0);"
                     cursor.execute(create_table)
             finally:
                 connection.commit()
@@ -126,7 +124,7 @@ class LoadMySQL():
 
                 # select table
                 with connection.cursor() as cursor:
-                    update_table = f"update price_user set price = {price} where user_id = {user_id}"
+                    update_table = f"update users set price = {price} where user_id = {user_id}"
                     cursor.execute(update_table)
 
 
@@ -153,7 +151,7 @@ class LoadMySQL():
 
                 # select table
                 with connection.cursor() as cursor:
-                    insert_table = f"update price_user set {level} = True where user_id = {user_id}"
+                    insert_table = f"update users set {level} = True where user_id = {user_id}"
                     cursor.execute(insert_table)
             finally:
                 connection.commit()
@@ -168,12 +166,10 @@ class LoadMySQL():
             return f"SELECT * from feedback where id = {random.randint(1, count)};"
         elif request == 'quest':
             return "SELECT * from questions"
-        elif request == 'income':
-            return f"SELECT * from price_user where user_id = {user}"
         elif request == "user":
-            return f"Select * from users where user = {user}"
-        elif request == "":
-            return
+            return f"Select * from users where user_id = {user}"
+        elif request == "statictic":
+            return "SELECT * from statictic"
 
 
     """user_id нужен для созданния поля и учесть выбор пользователя заработка"""

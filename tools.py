@@ -8,7 +8,7 @@ import text
 
 bot = telebot.TeleBot('5441324806:AAFX2bdVqwbpV6307GLOGNjib3p5S7gdgMk')
 SQL = LoadMySQL()
-#prontochat = -892313553
+prontochat = -892313553
 
 """мини дайджест от Михаила у меня тут в мустанг меню разработано логику кнопки с вопросами только тут же статистика
  и все остальное, подключить осталось нормально БД и множно додлывать кнопки я пытался сделать отдельно мутод который 
@@ -26,7 +26,6 @@ class MustangMenu():
             SQL.insert_user(message.chat.id)
 
     def question(self, message):
-        self.answer_id = 0
         markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
         menu = types.KeyboardButton("Меню")
         # back = types.KeyboardButton("Назад к вопросам")
@@ -43,6 +42,28 @@ class MustangMenu():
 
         markup.add(question_1, question_2, question_3, question_4)
         bot.send_message(message.chat.id, 'часто задаваемые вопросы', reply_markup=markup)
+
+        # удаляет сообщения ответа что бы не мешало
+    def back_to_question(self, call):
+        if self.answer_id != 0:
+            print(self.answer_id)
+            bot.delete_message(call.message.chat.id, self.answer_id.id)
+
+        # реализует кнопки вопрос ответ ответы берет с БД
+    def call_quest(self, call):
+        if call.message:
+            markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
+            menu = types.KeyboardButton("Меню")
+            back = types.KeyboardButton("Назад к вопросам")
+            markup_line.add(back, menu)
+            for i in range(4):
+                if call.data == str(i):
+                    info = SQL.select_to_bd('quest')[i]['answer']
+                    self.back_to_question(call)
+                    self.answer_id = bot.send_message(call.message.chat.id, info, reply_markup=markup_line)
+
+    def del_coment(self, call):
+        bot.delete_message(call.message.chat.id, self.answer_id)
 
     # принимает на себя сообщения и отправляет обратно сообщения с кнопками
     def menu(self, message):
@@ -97,41 +118,15 @@ class MustangMenu():
         markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
         menu = types.KeyboardButton('Меню')
         markup_line.add(menu)
+        data = SQL.select_to_bd('statictic')[0]
 
         bot.send_message(message.chat.id, '📌Вы на вкладке статистика', reply_markup=markup_line)
 
-        send = Template('Пользователи: 5987\n'
-                        'Заработано пользователями: 714 654 евро\n'
-                        'Приглашенных друзей: 2109\n'
-                        'Выполнено квестов: 29 935')
+        bot.send_message(message.chat.id, text.statistic_text.substitute({"users": data['users'],
+                                                                          "money": data['money'],
+                                                                          "friend": data['friend'],
+                                                                          "quest": data['quest']}))
 
-        bot.send_message(message.chat.id, send.substitute())
-    # удаляет сообщения ответа что бы не мешало
-
-    def back_to_question(self, message):
-        if self.answer_id != 0:
-            print(self.answer_id)
-            bot.delete_message(message.chat.id, self.answer_id + 1)
-        self.question(message)
-
-    # реализует кнопки вопрос ответ ответы берет с БД
-    def call_quest(self, call):
-        if call.message:
-            markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
-            menu = types.KeyboardButton("Меню")
-            back = types.KeyboardButton("Назад к вопросам")
-            markup_line.add(back, menu)
-            self.answer_id = call.message.id
-            self.del_coment(call)
-            for i in range(4):
-                if call.data == str(i):
-                    info = SQL.select_to_bd('quest')[i]['answer']
-                    bot.send_message(call.message.chat.id, info, reply_markup=markup_line)
-
-    def del_coment(self, call):
-        bot.delete_message(call.message.chat.id, self.answer_id)
-        bot.delete_message(call.message.chat.id, self.answer_id - 1)
-        bot.delete_message(call.message.chat.id, self.answer_id - 2)
 
     def preparation(self, message):
         #реестрация пользователя
@@ -140,26 +135,23 @@ class MustangMenu():
         com_ua = types.InlineKeyboardButton('Україна')
         com_br = types.InlineKeyboardButton('Польша')
         markup_line.add(com_ua, com_br)
-        text = Template("Binance являеться официальним спонсором и партнером проекта, компания гарантирует вам прибыль")
+        text = 'A Binance é a patrocinadora e parceira oficial do projeto, a empresa garante seu lucro!'
         file = open('images\defolt.jpg', 'rb')
-        bot.send_photo(message.chat.id, file, text.substitute())
-        bot.send_message(message.chat.id, "выберите страну проживания", reply_markup=markup_line)
+        bot.send_photo(message.chat.id, file, text)
+        bot.send_message(message.chat.id, "Escolha seu país de residência⤵️", reply_markup=markup_line)
 
     def preparation_two(self, message):
-        if SQL.select_to_bd("income", message.chat.id)[0]['price'] > 0:
-            self.level_1(message)
-        else:
-            markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
-            price_low = types.InlineKeyboardButton("3200")
-            price_medium = types.InlineKeyboardButton("5100")
-            price_high = types.InlineKeyboardButton("8500")
-            menu = types.InlineKeyboardButton("Меню")
-            markup_line.add(price_low, price_medium, price_high, menu)
-            file = open("images/defolt.jpg", 'rb')
-            text = 'фернандо являеться официальным партнером Форд и Бинанс'
+        markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
+        price_low = types.InlineKeyboardButton("3200")
+        price_medium = types.InlineKeyboardButton("5100")
+        price_high = types.InlineKeyboardButton("8500")
+        menu = types.InlineKeyboardButton("Меню")
+        markup_line.add(price_low, price_medium, price_high, menu)
+        file = open("images/defolt.jpg", 'rb')
+        text = 'Fernando é um parceiro oficial da "Ford" e "Binance". Esta é uma garantia de sua confiança em mim!'
 
-            bot.send_photo(message.chat.id, file, text)
-            bot.send_message(message.chat.id, 'выберите свой выиграш', reply_markup=markup_line)
+        bot.send_photo(message.chat.id, file, text)
+        bot.send_message(message.chat.id, 'Quanto você quer ganhar?⤵️', reply_markup=markup_line)
 
     def start(self, message):
         SQL.update_to_user(message.chat.id, message.text)
@@ -173,82 +165,74 @@ class MustangMenu():
         bot.send_message(message.chat.id, text.substitute(),  reply_markup=murkup_start)
 
     def level_1(self, message):
-        price = SQL.select_to_bd("income", message.chat.id)[0]['price']
+        price = SQL.select_to_bd("user", message.chat.id)[0]['price']
         markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
         level = types.KeyboardButton("второй этап")
         markup_line.add(level)
 
-        if SQL.select_to_bd("income", message.chat.id)[0]['level1']:
-            text = Template("осталось еще 5 этапов для получения 💵 $price и можете вывести"
-                            "на банковский счет\n"
-                            "я заинетересован в том что после выиграша вы перечислите мне 15%,"
-                            " а остальное себе для перехода"
-                            " к певому заданию нажмите страт")
-            bot.send_message(message.chat.id, text.substitute({'price': price}), reply_markup=markup_line)
+        bot.send_message(message.chat.id, "📖 подбераем задания... ", reply_markup=types.ReplyKeyboardRemove())
 
-        else:
-            bot.send_message(message.chat.id, "📖 подбераем задания... ", reply_markup=types.ReplyKeyboardRemove())
-
-            price = SQL.select_to_bd("income", message.chat.id)[0]['price']
-            markup = types.InlineKeyboardMarkup(row_width=1)
-            inst_com = types.InlineKeyboardButton(f"In stagram",
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        inst_com = types.InlineKeyboardButton(f"In stagram",
                                                   'https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
-            markup.add(inst_com)
+        markup.add(inst_com)
 
             #bot.send_message(message.chat.id, "📖 подбераем задания... б", reply_markup=bot.)
-            bot.send_message(message.chat.id, f"посмотрите его сторис что бы заработать {price}", reply_markup=markup)
-            time.sleep(1)
-            bot.send_message(message.chat.id, "поздравляю вы прошли первый этап", reply_markup=markup_line)
-            SQL.update_to_level("level1", message.chat.id)
+        bot.send_message(message.chat.id, f"посмотрите его сторис что бы заработать {price}", reply_markup=markup)
+        time.sleep(1)
+        bot.send_message(message.chat.id, "поздравляю вы прошли первый этап", reply_markup=markup_line)
 
     def level_2(self, message):
-        if SQL.select_to_bd("income", message.chat.id)[0]['level2']:
-            bot.send_message(message.chat.id, 'текст')
-            self.level_3(message)
-        else:
-            price = SQL.select_to_bd('income', message.chat.id)[0]['price']
-            markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
-            level = types.KeyboardButton("третий этап")
-            markup_line.add(level)
+
+        price = SQL.select_to_bd('user', message.chat.id)[0]['price']
+        markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
+        level = types.KeyboardButton("третий этап")
+        markup_line.add(level)
 
 
-            bot.send_message(message.chat.id, text.text_level2.substitute({"price": price}))
-            time.sleep(15)
-            bot.send_message(message.chat.id, "поздравляю вы прошли второй этап", reply_markup=markup_line)
-            SQL.update_to_level("level2", message.chat.id)
+        bot.send_message(message.chat.id, text.text_level2.substitute({"price": price}))
+        time.sleep(5)
+        bot.send_message(message.chat.id, "поздравляю вы прошли второй этап", reply_markup=markup_line)
 
     def level_3(self, message):
-        if SQL.select_to_bd("income", message.chat.id)[0]['level3']:
-            self.level_4(message)
-        else:
-            price = SQL.select_to_bd('income', message.chat.id)[0]['price']
-            markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
-            yes = types.InlineKeyboardButton('Sim, vou deixar uma feedback')
-            no = types.InlineKeyboardButton('Não, eu quero permanecer incógnito')
-            markup_line.add(yes, no)
+        markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
+        yes = types.InlineKeyboardButton('Sim, vou deixar uma feedback')
+        no = types.InlineKeyboardButton('Não, eu quero permanecer incógnito')
+        markup_line.add(yes, no)
 
-            bot.send_message(message.chat.id, f"посмотрите его сторис для заработка {price}")
-            time.sleep(2)
-            bot.send_message(message.chat.id, "поздравляю вы прошли третий этап", reply_markup=markup_line)
-            SQL.update_to_level("level3", message.chat.id)
+        markup = types.InlineKeyboardMarkup()
+        sait = types.InlineKeyboardButton('🖥Navegue pelo site', url="https://www.youtube.com/watch?v=xFoUNDRVBYM&t=116s")
+        markup.add(sait)
+        bot.send_message(message.chat.id, '📌Tarefa 3', reply_markup=markup_line)
+        file = open("images\defolt.jpg", "rb")
+        bot.send_photo(message.chat.id, file, "фооотоооо", reply_markup=markup)
 
+    def level_5(self, message, comment):
+        send_pronto = comment.pop(message.chat.id)
+        bot.send_message(prontochat, send_pronto)
+        price = SQL.select_to_bd('user', message.chat.id)[0]["price"]
 
+        mark = types.InlineKeyboardMarkup()
+        feedback = types.InlineKeyboardButton('Feedback', url='https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
+        mark.add(feedback)
 
-    def level_4(self, message):
-        if SQL.select_to_bd("income", message.chat.id)[0]['level4']:
-            self.level_4(message)
-        else:
-            markup = types.ReplyKeyboardMarkup(selective=False)
-            commet = bot.send_message(message.chat.id, text.text_level4.substitute())
-            bot.send_message(message.chat.id, "поздравляю вы прошли 3 этап", reply_markup=markup)
-            SQL.update_to_level("level4", message.chat.id)
-            bot.register_next_step_handler(commet, self.PRONTO)
+        markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
+        menu = types.InlineKeyboardButton("🔄Voltar ao menu")
+        markup_line.add(menu)
 
-    def PRONTO(self, message):
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
-        price = SQL.select_to_bd('income', message.chat.id)[0]['price']
-        reply = types.KeyboardButton("level4")
-        markup.add(reply)
-        save_text = text.text_pronto.substitute({"price": price, "text": message.text, "name": message.chat.username})
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        Instagram = types.InlineKeyboardButton('Instagram',
+                                               url='https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
+        Telegram = types.InlineKeyboardButton('✉️Telegram',
+                                              url='https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
+        WhatsApp = types.InlineKeyboardButton('📞WhatsApp',
+                                              url='https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
+        markup.add(Instagram, WhatsApp, Telegram)
 
-        bot.send_message(message.chat.id, text.text_pronto.substitute(), reply_markup=markup)
+        bot.send_message(message.chat.id, text.text_level5.substitute({"price": price}), reply_markup=mark)
+
+        time.sleep(10)
+
+        bot.send_message(message.chat.id, '📌Tarefa 3', reply_markup=markup_line)
+
+        bot.send_message(message.chat.id, text.text_end.substitute({"price": price}), reply_markup=markup)
