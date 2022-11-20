@@ -29,29 +29,29 @@ def all_murk(message):
 
     if message.text == 'Меню' or message.text == '🔄Voltar ao menu':
         Mustang.menu(message)
-    elif message.text == 'Вопросы':
+    elif message.text == '❓Preguntas':
         Mustang.question(message)
-    elif message.text == 'Автор':
+    elif message.text == '👨‍💻Author':
         Mustang.auhtor(message)
-    elif message.text == 'Отзывы':
+    elif message.text == '🗣Feedback':
         Mustang.feedback(message)
-    elif message.text == 'Статистика':
+    elif message.text == '📊Estatísticas':
         Mustang.statistic(message)
-    elif message.text == 'Заработать':
+    elif message.text == '💶Ganhar dinheiro':
         Mustang.preparation(message)
-    elif message.text == "Назад к вопросам":
-        Mustang.question(message)
-    elif message.text == 'More':
+    #elif message.text == "Назад к вопросам":
+    #    Mustang.question(message)
+    elif message.text == 'Mais feedback ⏩':
         Mustang.feedback(message)
-    elif message.text == "Польша" or message.text == "Україна":
+    elif message.text == "Portugal" or message.text == "Espanha" or message.text == 'Canadá':
         Mustang.preparation_two(message)
     elif message.text == '5100' or message.text == "8500" or message.text == '3200':
         Mustang.start(message)
-    elif message.text == "Старт":
+    elif message.text == "▶️START":
         Mustang.level_1(message)
-    elif message.text == 'второй этап':
+    elif message.text == 'Sim, vá para "Tarefa 2"⏩':
         Mustang.level_2(message)
-    elif message.text == 'третий этап':
+    elif message.text == 'Sim, vá para "Tarefa 3"⏩':
         Mustang.level_3(message)
     elif message.text == 'Não, eu quero permanecer incógnito' or message.text == 'Sim, vou deixar uma feedback':
         mark = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
@@ -70,7 +70,8 @@ def all_murk(message):
 
 
 def level_4( message):
-    bot.send_message(message.chat.id, "поздравляю вы прошли 3 этап")
+    bot.send_message(message.chat.id, '☑️GERENTE, você completou com sucesso a "Tarefa 3"!')
+    bot.send_message(message.chat.id, '📌Tarefa 4')
     markup = types.ReplyKeyboardMarkup(selective=False)
     comment = bot.send_message(message.chat.id, text.text_level4.substitute(), reply_markup=markup)
     print("dasdad")
@@ -82,6 +83,7 @@ def PRONTO(message):
     next = types.KeyboardButton("📩Enviar texto")
     price = SQL.select_to_bd('user', message.chat.id)[0]['price']
     markup.add(next, com)
+
     save_text = text.text_pronto.substitute({"price": price, "text": message.text, "name": message.chat.username,
                                              'rand': random.randint(0, 10 * 7)})
     comment[message.chat.id] = save_text
@@ -100,7 +102,7 @@ def start_work(message):
 
 @bot.callback_query_handler(func=lambda c: True)
 def main(call):
-    if call.data in '0123':
+    if call.data in '012345':
         question(call)
 
 
