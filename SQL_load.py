@@ -38,22 +38,6 @@ class LoadMySQL():
     def __init__(self):
         self.count = 1
 
-    @staticmethod
-    def test():
-        try:
-            connection = pymysql.connect(
-                host='34.70.12.24',
-                port=80,
-                user='root',
-                password='Mpython1996',
-                database='mustangbot',
-                cursorclass=cursors.DictCursor
-            )
-            print("connected successfully")
-
-        except Exception as ex:
-            print("connected false")
-            print(ex)
     """принимает на семя ключ запроса который в свою очеред определяет какой запрос в базу даных отправить для кнопок 
     статистика, задаваемые вопросы, отзывы"""
 
@@ -75,7 +59,6 @@ class LoadMySQL():
                     select_table = str(self.find_request(request, user_id))
                     cursor.execute(select_table)
                     rows = cursor.fetchall()
-                    print(rows)
                     return rows
             finally:
                 connection.close()
@@ -98,7 +81,7 @@ class LoadMySQL():
             try:
                 # select table
                 with connection.cursor() as cursor:
-                    create_table = f"insert users(user_id, earned, completed_quests) VALUES({user}, 0, 0);"
+                    create_table = f"insert users(user_id, earned, completed_quests, taps) VALUES({user}, 0, 0, 0);"
                     cursor.execute(create_table)
             finally:
                 connection.commit()
@@ -136,7 +119,7 @@ class LoadMySQL():
             print(ex)
 
     @staticmethod
-    def update_to_level(level, user_id):
+    def update_to_taps(user_id, level):
         try:
             connection = pymysql.connect(
                 host='127.0.0.1',
@@ -151,14 +134,18 @@ class LoadMySQL():
 
                 # select table
                 with connection.cursor() as cursor:
-                    insert_table = f"update users set {level} = True where user_id = {user_id}"
-                    cursor.execute(insert_table)
+                    update_table = f"update users set taps = {level} where user_id = {user_id}"
+                    cursor.execute(update_table)
+
+
             finally:
                 connection.commit()
                 connection.close()
         except Exception as ex:
             print("connected false")
             print(ex)
+
+
     """принимает ключ которым определяет какой запрос нужен"""
 
     def find_request(self, request, user=None):

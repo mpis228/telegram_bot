@@ -1,8 +1,18 @@
 from string import Template
 
+greeting = Template("""👤 Olá *$name*
+
+Empresa "Ford" lançou um projeto de caridade no qual paga dinheiro a pessoas que realizam tarefas especiais.
+
+Uma vez concluídas as 5 tarefas, nossa equipe lhe enviará as instruções finais, após as quais você poderá obter a quantia desejada!
+
+Você pode ganhar 8.500 ou mais euros em seu cartão em duas horas.
+
+Selecione o item do menu ⤵️""")
+
 statistic_text = Template('📝 *Estatísticas "Mustang BOT"*\n\n'
                         '📈 Users:  *$users*\n'
-                        '📈 Earned pelos usuários:  *$money евро*\n'
+                        '📈 Earned pelos usuários:  *$money euro*\n'
                         '📈 Amigos convidados:  *$friend*\n'
                         '📈 Followed quests:  *$quest*\n\n'
                         'Os dados são atualizados uma vez por dia')
@@ -43,8 +53,7 @@ text_level4 = Template("""
 As vagas no projeto são limitadas, portanto, nosso gerente processará sua solicitação o mais rápido possível!\n\n
 Digite seu texto abaixo e submeta-o para verificação""")
 
-text_level5 = Template("""Seu solicitação está sendo verificado atualmente...\n
-Não leva mais do que 10 minutos.\n
+text_level5 = Template("""Não leva mais do que 10 minutos.\n
 🔂Se sua inscrição não for aprovada, você poderá tentar novamente após 24 horas.\n
 Em breve você receberá as instruções finais e ganhar 💶$price""")
 

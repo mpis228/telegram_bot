@@ -43,7 +43,6 @@ class MustangMenu():
         question_5 = types.InlineKeyboardButton(quest[4][0], callback_data='4')
         question_6 = types.InlineKeyboardButton(quest[5][0], callback_data='5')
 
-
         markup.add(question_1, question_2, question_3, question_4, question_5, question_6)
         bot.send_message(message.chat.id, 'Escolha as perguntas que lhe interessam:', reply_markup=markup)
 
@@ -84,7 +83,7 @@ class MustangMenu():
         markup.add(com_recall, com_questions, com_auhtor, com_statistic, com_earn)
 
         name = message.chat.first_name
-        bot.send_message(message.chat.id, f"здрасвуйте {name} Вас приветсвует мустангру бот ", reply_markup=markup)
+        bot.send_message(message.chat.id, text.greeting.substitute({'name': name}), reply_markup=markup, parse_mode="Markdown")
 
         # реализация кнопки автора
     @staticmethod
@@ -177,7 +176,6 @@ class MustangMenu():
         markup.add(como)
         markup_start.add(start, menu)
 
-
         bot.send_message(message.chat.id, "📖 *GERENTE*, selecionamos tarefas adequadas para você...",
                          reply_markup=markup_start, parse_mode='Markdown')
         bot.send_message(message.chat.id, text.text_start.substitute({"price": message.text}),
@@ -198,7 +196,8 @@ class MustangMenu():
         # bot.send_message(message.chat.id, "📖 подбераем задания... б", reply_markup=bot.)
         bot.send_message(message.chat.id, text.text_level1.substitute({"price": price}), reply_markup=markup)
         time.sleep(1)
-        bot.send_message(message.chat.id, '☑️GERENTE, você completou com sucesso a "Tarefa 1"!', reply_markup=markup_line)
+        bot.send_message(message.chat.id, '☑️GERENTE, você completou com sucesso a "Tarefa 1"!',
+                         reply_markup=markup_line)
 
     def level_2(self, message):
 
@@ -206,13 +205,15 @@ class MustangMenu():
         markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
         level = types.KeyboardButton('Sim, vá para "Tarefa 3"⏩')
 
-        # markup = types.InlineKeyboardMarkup()
-        # conatate = types.InlineKeyboardButton("", url="")
-        # markup.add(conatate)
+        markup = types.InlineKeyboardMarkup()
+        conatate = types.InlineKeyboardButton("📩Contate Margarida",
+                                              url="https://xn--80affa3aj0al.xn--80asehdb/#@margaridalmeida")
+        markup.add(conatate)
 
         markup_line.add(level)
 
         video = open("images/video_2022-11-20_22-15-19.mp4", "rb")
+        bot.send_message(message.chat.id, '☑️GERENTE, você completou com sucesso a "Tarefa 1"!')
 
         bot.send_message(message.chat.id, '📌Tarefa 2')
         bot.send_video(message.chat.id, video)
@@ -228,41 +229,16 @@ class MustangMenu():
         markup_line.add(yes, no)
 
         markup = types.InlineKeyboardMarkup()
-        sait = types.InlineKeyboardButton('🖥Navegue pelo site', url="https://www.youtube.com/watch?v=xFoUNDRVBYM&t=116s")
+        sait = types.InlineKeyboardButton('🖥Navegue pelo site',
+                                          url="https://mustangbot-pt.com/")
         markup.add(sait)
 
-        file = open("images/defolt.jpg", "rb")
+        file = open("images/level3.jpg", "rb")
 
         bot.send_message(message.chat.id, '☑️GERENTE, você completou com sucesso a "Tarefa 2"!')
         bot.send_message(message.chat.id, '📌Tarefa 3', reply_markup=markup_line)
         bot.send_photo(message.chat.id, file, text.text_level3.substitute(), reply_markup=markup)
 
-    def level_5(self, message, comment):
-        send_pronto = comment.pop(message.chat.id)
-        bot.send_message(prontochat, send_pronto)
-        price = SQL.select_to_bd('user', message.chat.id)[0]["price"]
 
-        mark = types.InlineKeyboardMarkup()
-        feedback = types.InlineKeyboardButton('Feedback', url='https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
-        mark.add(feedback)
 
-        markup_line = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True, row_width=1)
-        menu = types.InlineKeyboardButton("🔄Voltar ao menu")
-        markup_line.add(menu)
 
-        markup = types.InlineKeyboardMarkup(row_width=1)
-        Instagram = types.InlineKeyboardButton('Instagram',
-                                               url='https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
-        Telegram = types.InlineKeyboardButton('✉️Telegram',
-                                              url='https://t.me/FernandoCardosoJr/')
-        WhatsApp = types.InlineKeyboardButton('📞WhatsApp',
-                                              url='https://instagram.com/fernando_cardoso_jr?igshid=YmMyMTA2M2Y=')
-        markup.add(Instagram, WhatsApp, Telegram)
-
-        bot.send_message(message.chat.id, text.text_level5.substitute({"price": price}), reply_markup=mark)
-
-        time.sleep(10)
-        bot.send_message(message.chat.id, '☑️*GERENTE*, seu solicitação é aprovado!', parse_mode="Markdown")
-
-        bot.send_message(message.chat.id, '📌*Tarefa 5*', reply_markup=markup_line, parse_mode="Markdown")
-        bot.send_message(message.chat.id, text.text_end.substitute({"price": price}), reply_markup=markup)
